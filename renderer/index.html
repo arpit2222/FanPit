@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FanPit - Decentralized Fan Community</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0b0c10;
+        --surface-color: rgba(31, 40, 51, 0.6);
+        --primary-color: #66fcf1;
+        --secondary-color: #45a29e;
+        --text-color: #c5c6c7;
+        --white: #ffffff;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        background: radial-gradient(circle at top right, #1f2833 0%, #0b0c10 100%);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      /* SETUP SCREEN */
+      #setup-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        animation: fadeIn 1s ease-out;
+      }
+      
+      .brand-title {
+        font-size: 64px;
+        font-weight: 800;
+        margin-bottom: 5px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -2px;
+      }
+      
+      .brand-subtitle {
+        font-size: 18px;
+        font-weight: 300;
+        margin-bottom: 40px;
+        color: var(--secondary-color);
+      }
+      
+      .card {
+        background: var(--surface-color);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid rgba(102, 252, 241, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        text-align: center;
+        width: 380px;
+        transition: transform 0.3s ease;
+      }
+      
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(102, 252, 241, 0.2);
+      }
+      
+      input[type="text"] {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 16px;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--white);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        outline: none;
+        transition: all 0.3s;
+        font-family: inherit;
+      }
+      
+      input[type="text"]:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+      }
+      
+      button {
+        padding: 16px 24px;
+        font-size: 16px;
+        background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        color: var(--bg-color);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+      
+      button:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(102, 252, 241, 0.5);
+      }
+      
+      /* CHAT SCREEN */
+      #chat-screen {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+        animation: slideIn 0.5s ease-out;
+      }
+      
+      header {
+        background: rgba(11, 12, 16, 0.8);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+      }
+      
+      #room-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--white);
+      }
+      
+      #my-key {
+        font-size: 12px;
+        color: var(--secondary-color);
+        background: rgba(69, 162, 158, 0.1);
+        padding: 4px 10px;
+        border-radius: 12px;
+      }
+      
+      #wallet-area {
+        background: rgba(31, 40, 51, 0.4);
+        padding: 12px 30px;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      
+      .wallet-info { 
+        font-family: 'Outfit', monospace; 
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+      
+      #feed {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        scroll-behavior: smooth;
+      }
+      
+      #feed::-webkit-scrollbar {
+        width: 8px;
+      }
+      #feed::-webkit-scrollbar-thumb {
+        background: var(--surface-color);
+        border-radius: 4px;
+      }
+      
+      .post {
+        background: var(--surface-color);
+        padding: 20px;
+        border-radius: 16px;
+        border-left: 4px solid var(--secondary-color);
+        animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        max-width: 80%;
+      }
+      
+      .post.self {
+        align-self: flex-end;
+        border-left: none;
+        border-right: 4px solid var(--primary-color);
+        background: rgba(102, 252, 241, 0.05);
+      }
+      
+      .post-author { 
+        font-weight: 800; 
+        font-size: 12px; 
+        margin-bottom: 8px; 
+        color: var(--secondary-color); 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      
+      .post.self .post-author {
+        color: var(--primary-color);
+        text-align: right;
+      }
+      
+      .post-text { 
+        font-size: 16px; 
+        color: var(--white);
+        line-height: 1.5;
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      
+      .action-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+        width: auto;
+        font-weight: 400;
+      }
+      
+      .action-btn:hover {
+        background: rgba(255,255,255,0.1);
+        transform: none;
+        box-shadow: none;
+      }
+      
+      .action-btn.tip-btn {
+        color: var(--primary-color);
+        border-color: rgba(102, 252, 241, 0.3);
+      }
+      .action-btn.tip-btn:hover {
+        background: rgba(102, 252, 241, 0.1);
+      }
+      
+      .ai-result {
+        margin-top: 15px;
+        padding: 10px 15px;
+        background: rgba(0,0,0,0.3);
+        border-radius: 8px;
+        font-style: italic;
+        font-size: 14px;
+        border-left: 2px solid var(--primary-color);
+      }
+      
+      #input-area {
+        padding: 20px 30px;
+        background: rgba(11, 12, 16, 0.8);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        gap: 15px;
+      }
+      
+      #input-area input {
+        margin-bottom: 0;
+      }
+      
+      #input-area button {
+        width: 120px;
+      }
+      
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes popIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="setup-screen">
+      <div class="brand-title">FanPit</div>
+      <div class="brand-subtitle">Decentralized Global Communities</div>
+      <div class="card">
+        <h3 style="margin-top: 0; color: var(--white); font-weight: 600;">Join a Community</h3>
+        <input type="text" id="team-name" placeholder="Enter team (e.g. Real Madrid)" />
+        <button id="join-btn">Enter Room</button>
+      </div>
+    </div>
+    
+    <div id="chat-screen">
+      <header>
+        <div id="room-title">Room</div>
+        <div id="my-key"></div>
+      </header>
+      <div id="wallet-area">
+        <div><span style="color:var(--text-color)">Wallet:</span> <span class="wallet-info" id="wallet-address">Connecting to WDK...</span></div>
+        <div><span style="color:var(--text-color)">Balance:</span> <span class="wallet-info" id="wallet-balance">--</span></div>
+      </div>
+      <div id="feed">
+        <div style="text-align: center; color: var(--secondary-color); font-size: 14px; margin-top: 20px;">
+          Welcome to the decentralized FanPit. End-to-end encrypted and peer-to-peer.
+        </div>
+      </div>
+      <div id="input-area">
+        <input type="text" id="post-text" placeholder="Type your message..." autocomplete="off" />
+        <button id="post-btn">Send</button>
+      </div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
