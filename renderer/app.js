@@ -37,6 +37,18 @@ bridge.onWorkerIPC(workers.main, (data) => {
     chatScreen.style.display = 'flex'
     roomTitle.innerText = `Team: ${msg.teamName}`
     myKeySpan.innerText = `My ID: ${msg.key.slice(0,6)}`
+    
+    // Seed dummy users and messages for the demo
+    setTimeout(() => {
+      appendPost({ author: '8a9f2b', text: `Let's go ${msg.teamName}! Massive game this weekend. ⚽` });
+    }, 400);
+    setTimeout(() => {
+      appendPost({ author: '3c1d9e', text: 'Has anyone seen the starting lineup yet?' });
+    }, 800);
+    setTimeout(() => {
+      appendPost({ author: 'f4e2a1', text: 'Todavía no, pero espero que jueguen con dos delanteros.' }); // Spanish post to showcase QVAC translation
+    }, 1200);
+
   } else if (msg.type === 'new-post') {
     appendPost(msg.post)
   }
