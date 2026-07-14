@@ -117,7 +117,7 @@ pipe.on('data', async (data) => {
     topic.set(b4a.from(msg.teamName))
     swarm.join(topic)
     pipe.write(JSON.stringify({ type: 'joined', teamName: msg.teamName, key: b4a.toString(myCore.key, 'hex') }))
-  } else if (msg.type === 'post' || msg.type === 'score-update' || msg.type === 'wager') {
+  } else if (msg.type === 'post' || msg.type === 'score-update' || msg.type === 'wager' || msg.type === 'crowdfund') {
     if (myCore) {
       if (msg.type === 'post') {
         const postObj = { text: msg.text, author: b4a.toString(myCore.key, 'hex').slice(0, 6), timestamp: Date.now() }

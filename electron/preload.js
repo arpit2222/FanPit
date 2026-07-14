@@ -36,6 +36,7 @@ contextBridge.exposeInMainWorld('bridge', {
     return ipcRenderer.invoke('pear:worker:writeIPC:' + specifier, data)
   },
   translate: (text) => ipcRenderer.invoke('qvac:translate', text),
+  moderate: (text) => ipcRenderer.invoke('qvac:moderate', text),
   wdkCreate: () => ipcRenderer.invoke('wdk:create'),
   wdkTransaction: (params) => ipcRenderer.invoke('wdk:transaction', params)
 })

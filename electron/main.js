@@ -201,6 +201,20 @@ ipcMain.handle('qvac:translate', async (evt, text) => {
   }
 })
 
+ipcMain.handle('qvac:moderate', async (evt, text) => {
+  // Simulating QVAC local LLM classification for toxic content
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const lowerText = text.toLowerCase()
+      if (lowerText.includes('hate') || lowerText.includes('kill') || lowerText.includes('idiot')) {
+        resolve({ isToxic: true, reason: 'Detected toxic language or hostility.' })
+      } else {
+        resolve({ isToxic: false })
+      }
+    }, 500)
+  })
+})
+
 ipcMain.handle('wdk:create', async () => {
   return {
     address: 'tb1qmockaddress83928420x' + Math.floor(Math.random() * 1000),

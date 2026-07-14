@@ -239,6 +239,29 @@
         font-size: 14px;
       }
       
+      .crowdfund-card {
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(102, 252, 241, 0.2);
+        margin-top: 10px;
+      }
+      .crowdfund-card h4 { margin: 0 0 5px 0; color: var(--primary-color); font-size: 14px; }
+      .progress-bar-bg {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        height: 12px;
+        width: 100%;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+        height: 100%;
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+      
       #wallet-area {
         background: rgba(31, 40, 51, 0.4);
         padding: 12px 30px;
@@ -444,6 +467,20 @@
           <div id="live-wagers">
             <!-- P2P wagers will appear here -->
           </div>
+          
+          <div class="crowdfund-card">
+            <h4>Fan Action: Stadium Banner</h4>
+            <div style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Goal: 500 USDt to fly a banner over the stadium.</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="crowdfund-progress"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 10px;">
+              <span id="crowdfund-raised">0 USDt</span>
+              <span>500 USDt</span>
+            </div>
+            <button class="wager-btn" id="btn-crowdfund" style="width: 100%; background: linear-gradient(45deg, #0d6efd, #0dcaf0);">Contribute 10 USDt</button>
+          </div>
+          
         </div>
       </div>
     </div>

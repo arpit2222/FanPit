@@ -24,9 +24,14 @@ const predHome = document.getElementById('pred-home')
 const predAway = document.getElementById('pred-away')
 const btnWager = document.getElementById('btn-wager')
 const liveWagers = document.getElementById('live-wagers')
+const btnCrowdfund = document.getElementById('btn-crowdfund')
+const crowdfundProgress = document.getElementById('crowdfund-progress')
+const crowdfundRaised = document.getElementById('crowdfund-raised')
 
 let homeScore = 0
 let awayScore = 0
+let crowdfundAmount = 0
+const CROWDFUND_GOAL = 500
 
 const workers = { main: '/workers/main.js' }
 bridge.startWorker(workers.main)
@@ -71,6 +76,11 @@ bridge.onWorkerIPC(workers.main, (data) => {
     if (msg.team === 'away') { awayScore++; awayScoreSpan.innerText = awayScore; }
   } else if (msg.type === 'wager') {
     appendWager(msg.wager)
+  } else if (msg.type === 'crowdfund') {
+    crowdfundAmount += msg.amount
+    crowdfundRaised.innerText = `${crowdfundAmount} USDt`
+    const percent = Math.min((crowdfundAmount / CROWDFUND_GOAL) * 100, 100)
+    crowdfundProgress.style.width = `${percent}%`
   }
 })
 
@@ -142,6 +152,20 @@ btnSentiment.onclick = async () => {
   }, 1500)
 }
 
+// === WDK CROWDFUND LOGIC ===
+btnCrowdfund.onclick = async () => {
+  btnCrowdfund.innerText = 'Signing Tx...'
+  btnCrowdfund.disabled = true
+  try {
+    await bridge.wdkTransaction({ to: 'CrowdfundPool', amount: '10.00' })
+    bridge.writeWorkerIPC(workers.main, JSON.stringify({ type: 'crowdfund', amount: 10 }))
+    btnCrowdfund.innerText = 'Contributed 10 USDt ✓'
+  } catch(e) {
+    btnCrowdfund.innerText = 'Failed'
+    btnCrowdfund.disabled = false
+  }
+}
+
 joinBtn.onclick = async () => {
   const teamName = teamInput.value.trim()
   if (teamName) {
@@ -161,11 +185,29 @@ joinBtn.onclick = async () => {
   }
 }
 
-postBtn.onclick = () => {
+postBtn.onclick = async () => {
   const text = postInput.value.trim()
   if (text) {
+    postBtn.innerText = '...'
+    postBtn.disabled = true
+    
+    // QVAC Toxicity Filter
+    try {
+      const moderation = await bridge.moderate(text)
+      if (moderation.isToxic) {
+        alert(`QVAC Moderation Alert: Your message was blocked before sending.\nReason: ${moderation.reason}`)
+        postBtn.innerText = 'Send'
+        postBtn.disabled = false
+        return
+      }
+    } catch(e) {
+      console.error('Moderation error', e)
+    }
+
     bridge.writeWorkerIPC(workers.main, JSON.stringify({ type: 'post', text }))
     postInput.value = ''
+    postBtn.innerText = 'Send'
+    postBtn.disabled = false
   }
 }
 
