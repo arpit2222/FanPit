@@ -6,7 +6,6 @@ const FramedStream = require('framed-stream')
 const path = require('bare-path')
 const dir = require('bare-storage')
 const { isBareKit } = require('which-runtime')
-const crypto = require('crypto')
 const b4a = require('b4a')
 
 const argv = (index) => Bare.argv[index + (isBareKit ? 0 : 2)]
@@ -74,12 +73,11 @@ async function trackCore(key) {
   
   let lastLength = core.length
   
-  // Read existing blocks
   for (let i = 0; i < lastLength; i++) {
     const block = await core.get(i)
     try {
-      const post = JSON.parse(block.toString())
-      pipe.write(JSON.stringify({ type: 'new-post', post }))
+      const msg = JSON.parse(block.toString())
+      pipe.write(JSON.stringify(msg))
     } catch(e) {}
   }
   
@@ -87,8 +85,8 @@ async function trackCore(key) {
     while (lastLength < core.length) {
       const block = await core.get(lastLength++)
       try {
-        const post = JSON.parse(block.toString())
-        pipe.write(JSON.stringify({ type: 'new-post', post }))
+        const msg = JSON.parse(block.toString())
+        pipe.write(JSON.stringify(msg))
       } catch(e) {}
     }
   })
@@ -115,13 +113,18 @@ pipe.on('data', async (data) => {
     await myCore.ready()
     await trackCore(myCore.key)
     
-    const topic = crypto.createHash('sha256').update(msg.teamName).digest()
+    const topic = b4a.alloc(32)
+    topic.set(b4a.from(msg.teamName))
     swarm.join(topic)
     pipe.write(JSON.stringify({ type: 'joined', teamName: msg.teamName, key: b4a.toString(myCore.key, 'hex') }))
-  } else if (msg.type === 'post') {
+  } else if (msg.type === 'post' || msg.type === 'score-update' || msg.type === 'wager') {
     if (myCore) {
-      const postObj = { text: msg.text, author: b4a.toString(myCore.key, 'hex').slice(0, 6), timestamp: Date.now() }
-      await myCore.append(JSON.stringify(postObj))
+      if (msg.type === 'post') {
+        const postObj = { text: msg.text, author: b4a.toString(myCore.key, 'hex').slice(0, 6), timestamp: Date.now() }
+        await myCore.append(JSON.stringify({ type: 'new-post', post: postObj }))
+      } else {
+        await myCore.append(JSON.stringify(msg))
+      }
     }
   }
 })

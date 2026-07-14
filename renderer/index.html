@@ -146,6 +146,99 @@
         border-radius: 12px;
       }
       
+      #stadium-header {
+        background: linear-gradient(90deg, rgba(31, 40, 51, 0.9), rgba(11, 12, 16, 0.9));
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+      }
+      
+      .score-display {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary-color);
+        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      
+      .score-btn {
+        background: rgba(102, 252, 241, 0.1);
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        width: auto;
+      }
+      .score-btn:hover { background: rgba(102, 252, 241, 0.2); transform: none; box-shadow: none; }
+      
+      .sentiment-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--white);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        width: auto;
+      }
+      .sentiment-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); box-shadow: none; }
+      
+      #main-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+      
+      #feed-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      
+      #predictions-panel {
+        width: 300px;
+        background: rgba(31, 40, 51, 0.3);
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+      }
+      
+      .prediction-card {
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .prediction-card h4 { margin: 0 0 10px 0; color: var(--secondary-color); font-size: 14px; }
+      
+      .wager-input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .wager-input-group input {
+        width: 50%;
+        padding: 8px;
+        font-size: 14px;
+        margin: 0;
+      }
+      
+      .wager-btn {
+        background: linear-gradient(45deg, #198754, #20c997);
+        color: white;
+        padding: 10px;
+        font-size: 14px;
+      }
+      
       #wallet-area {
         background: rgba(31, 40, 51, 0.4);
         padding: 12px 30px;
@@ -307,18 +400,51 @@
         <div id="room-title">Room</div>
         <div id="my-key"></div>
       </header>
+      
+      <div id="stadium-header">
+        <div class="score-display">
+          Home <span id="home-score">0</span> - <span id="away-score">0</span> Away
+          <button class="score-btn" id="btn-home-goal">+ Home</button>
+          <button class="score-btn" id="btn-away-goal">+ Away</button>
+        </div>
+        <button class="sentiment-btn" id="btn-sentiment">🧠 Summarize Sentiment</button>
+      </div>
+      
       <div id="wallet-area">
         <div><span style="color:var(--text-color)">Wallet:</span> <span class="wallet-info" id="wallet-address">Connecting to WDK...</span></div>
         <div><span style="color:var(--text-color)">Balance:</span> <span class="wallet-info" id="wallet-balance">--</span></div>
       </div>
-      <div id="feed">
-        <div style="text-align: center; color: var(--secondary-color); font-size: 14px; margin-top: 20px;">
-          Welcome to the decentralized FanPit. End-to-end encrypted and peer-to-peer.
+      
+      <div id="main-container">
+        <div id="feed-container">
+          <div id="feed">
+            <div style="text-align: center; color: var(--secondary-color); font-size: 14px; margin-top: 20px;">
+              Welcome to the decentralized FanPit. End-to-end encrypted and peer-to-peer.
+            </div>
+            <div id="sentiment-result" style="display:none; text-align: center; margin: 10px; padding: 10px; background: rgba(102,252,241,0.1); border-radius: 8px; font-style: italic; color: var(--primary-color);"></div>
+          </div>
+          <div id="input-area">
+            <input type="text" id="post-text" placeholder="Type your message..." autocomplete="off" />
+            <button id="post-btn">Send</button>
+          </div>
         </div>
-      </div>
-      <div id="input-area">
-        <input type="text" id="post-text" placeholder="Type your message..." autocomplete="off" />
-        <button id="post-btn">Send</button>
+        
+        <div id="predictions-panel">
+          <h3 style="margin: 0 0 15px 0; color: var(--white); font-weight: 600;">Match Predictions</h3>
+          
+          <div class="prediction-card">
+            <h4>Predict Final Score</h4>
+            <div class="wager-input-group">
+              <input type="number" id="pred-home" placeholder="Home" min="0" />
+              <input type="number" id="pred-away" placeholder="Away" min="0" />
+            </div>
+            <button class="wager-btn" id="btn-wager">Stake 5 USDt (WDK)</button>
+          </div>
+          
+          <div id="live-wagers">
+            <!-- P2P wagers will appear here -->
+          </div>
+        </div>
       </div>
     </div>
     

@@ -20,7 +20,8 @@ const cmd = command(
   appName,
   flag('--storage <dir>', 'pass custom storage to pear-runtime'),
   flag('--no-updates', 'start without OTA updates'),
-  flag('--no-sandbox', 'start without Chromium sandbox').hide()
+  flag('--no-sandbox', 'start without Chromium sandbox').hide(),
+  flag('--user-data-dir <dir>', 'electron user data dir').hide()
 )
 
 cmd.parse(app.isPackaged ? process.argv.slice(1) : process.argv.slice(2))
@@ -84,6 +85,7 @@ function getWorker(specifier) {
     sendToAll('pear:worker:stdout:' + specifier, data)
   }
   function sendWorkerStderr(data) {
+    console.error('WORKER STDERR:', data.toString())
     sendToAll('pear:worker:stderr:' + specifier, data)
   }
   function sendWorkerIPC(data) {

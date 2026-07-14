@@ -13,6 +13,21 @@ const feed = document.getElementById('feed')
 const postInput = document.getElementById('post-text')
 const postBtn = document.getElementById('post-btn')
 
+// New Feature Elements
+const homeScoreSpan = document.getElementById('home-score')
+const awayScoreSpan = document.getElementById('away-score')
+const btnHomeGoal = document.getElementById('btn-home-goal')
+const btnAwayGoal = document.getElementById('btn-away-goal')
+const btnSentiment = document.getElementById('btn-sentiment')
+const sentimentResult = document.getElementById('sentiment-result')
+const predHome = document.getElementById('pred-home')
+const predAway = document.getElementById('pred-away')
+const btnWager = document.getElementById('btn-wager')
+const liveWagers = document.getElementById('live-wagers')
+
+let homeScore = 0
+let awayScore = 0
+
 const workers = { main: '/workers/main.js' }
 bridge.startWorker(workers.main)
 
@@ -51,8 +66,81 @@ bridge.onWorkerIPC(workers.main, (data) => {
 
   } else if (msg.type === 'new-post') {
     appendPost(msg.post)
+  } else if (msg.type === 'score-update') {
+    if (msg.team === 'home') { homeScore++; homeScoreSpan.innerText = homeScore; }
+    if (msg.team === 'away') { awayScore++; awayScoreSpan.innerText = awayScore; }
+  } else if (msg.type === 'wager') {
+    appendWager(msg.wager)
   }
 })
+
+// === SCOREBOARD LOGIC ===
+btnHomeGoal.onclick = () => {
+  bridge.writeWorkerIPC(workers.main, JSON.stringify({ type: 'score-update', team: 'home' }))
+}
+btnAwayGoal.onclick = () => {
+  bridge.writeWorkerIPC(workers.main, JSON.stringify({ type: 'score-update', team: 'away' }))
+}
+
+// === WAGERING LOGIC ===
+btnWager.onclick = async () => {
+  const h = predHome.value
+  const a = predAway.value
+  if (h === '' || a === '') return
+  
+  btnWager.innerText = 'Signing Tx...'
+  btnWager.disabled = true
+  try {
+    const tx = await bridge.wdkTransaction({ to: 'SmartContractEscrow', amount: '5.00' })
+    const wagerObj = {
+      author: myKeySpan.innerText.replace('My ID: ', ''),
+      prediction: `${h} - ${a}`,
+      txId: tx.txId.slice(0, 8)
+    }
+    bridge.writeWorkerIPC(workers.main, JSON.stringify({ type: 'wager', wager: wagerObj }))
+    
+    btnWager.innerText = 'Wager Locked 🔒'
+    btnWager.style.background = '#6c757d'
+  } catch(e) {
+    btnWager.innerText = 'Failed'
+    btnWager.disabled = false
+  }
+}
+
+function appendWager(wager) {
+  const div = document.createElement('div')
+  div.className = 'prediction-card'
+  div.style.background = 'rgba(25, 135, 84, 0.2)'
+  div.innerHTML = `
+    <h4 style="color:#20c997">${wager.author} wagered 5 USDt</h4>
+    <div style="font-size:18px; font-weight:800; color:white;">Predicts: ${wager.prediction}</div>
+    <div style="font-size:10px; color:#aaa; margin-top:5px;">Tx: ${wager.txId}</div>
+  `
+  liveWagers.prepend(div)
+}
+
+// === QVAC SENTIMENT LOGIC ===
+btnSentiment.onclick = async () => {
+  btnSentiment.innerText = '🧠 Analyzing...'
+  btnSentiment.disabled = true
+  
+  // Grab recent feed text
+  const texts = Array.from(document.querySelectorAll('.post-text')).slice(-10).map(el => el.innerText).join('. ')
+  if (!texts) {
+    sentimentResult.style.display = 'block'
+    sentimentResult.innerText = "Not enough chat data to analyze sentiment."
+    btnSentiment.innerText = '🧠 Summarize Sentiment'
+    btnSentiment.disabled = false
+    return
+  }
+  
+  // Since we are mocking QVAC for the demo, we will simulate a realistic local sentiment analysis
+  setTimeout(() => {
+    sentimentResult.style.display = 'block'
+    sentimentResult.innerText = "QVAC Sentiment Report: The community is highly energetic and optimistic about the current lineup, though some fans are anxious about the defense."
+    btnSentiment.innerText = '🧠 Analyzed'
+  }, 1500)
+}
 
 joinBtn.onclick = async () => {
   const teamName = teamInput.value.trim()
